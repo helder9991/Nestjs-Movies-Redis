@@ -2,6 +2,8 @@ import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from './users/entities/user.entity';
 import { UsersModule } from './users/users.module';
+import { MoviesModule } from './movies/movies.module';
+import { Movie } from './movies/entities/movie.entity';
 
 @Module({
   imports: [
@@ -12,10 +14,11 @@ import { UsersModule } from './users/users.module';
       username: 'root',
       password: 'docker',
       database: 'filmes',
-      entities: [User],
+      entities: [User, Movie],
       synchronize: true,
     }),
     UsersModule,
+    MoviesModule,
   ],
   controllers: [],
   providers: [],
