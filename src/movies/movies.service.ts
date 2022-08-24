@@ -25,10 +25,21 @@ export class MoviesService {
     return await this.moviesRepository.save(movie);
   }
 
-  async findAll() {
-    const movies = await this.moviesRepository.find();
+  async findAll(page: number) {
+    const take = 10;
+    const skip = (page - 1) * take;
 
-    return movies;
+    const [movies, total] = await this.moviesRepository.findAndCount({
+      order: {
+        name: 'ASC',
+      },
+      take: take,
+      skip: skip,
+    });
+
+    const totalPages = Math.ceil(total / take);
+
+    return { movies, pageNumber: page, totalPages, totaRowCount: total };
   }
 
   async findOne(id: string) {

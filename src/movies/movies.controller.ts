@@ -7,6 +7,9 @@ import {
   Param,
   Delete,
   Res,
+  Inject,
+  CACHE_MANAGER,
+  Query,
 } from '@nestjs/common';
 import { MoviesService } from './movies.service';
 import { CreateMovieDto } from './dto/create-movie.dto';
@@ -14,14 +17,19 @@ import { UpdateMovieDto } from './dto/update-movie.dto';
 import { Response } from 'express';
 import {
   createMovieSchema,
+  findAllMovieSchema,
   findOneMovieSchema,
   removeMovieSchema,
   updateMovieSchema,
 } from './validators/movieSchema';
+import { Cache } from 'cache-manager';
 
 @Controller('movies')
 export class MoviesController {
-  constructor(private readonly moviesService: MoviesService) {}
+  constructor(
+    private readonly moviesService: MoviesService,
+    @Inject(CACHE_MANAGER) private cacheManager: Cache,
+  ) {}
 
   @Post()
   async create(
@@ -33,16 +41,39 @@ export class MoviesController {
     if (!isValid)
       return response.status(400).json({ message: 'Bad validation' });
 
+    await this.cacheManager.reset();
+
     const movie = await this.moviesService.create({ name, description });
 
     return response.status(201).json(movie);
   }
 
   @Get()
-  async findAll(@Res() response: Response) {
-    const movies = await this.moviesService.findAll();
+  async findAll(@Query('page') page: number, @Res() response: Response) {
+    page = page ? page : 1;
 
-    return response.status(200).json({ movies });
+    const isValid = await findAllMovieSchema.isValid({ page });
+
+    if (!isValid)
+      return response.status(400).json({ message: 'Bad validation' });
+
+    const hasCache = await this.cacheManager.get(`${page}`);
+
+    if (hasCache) return response.status(200).json(hasCache);
+
+    const { movies, pageNumber, totalPages, totaRowCount } =
+      await this.moviesService.findAll(page);
+
+    await this.cacheManager.set(`${page}`, {
+      movies,
+      pageNumber,
+      totalPages,
+      totaRowCount,
+    });
+
+    return response
+      .status(200)
+      .json({ movies, pageNumber, totalPages, totaRowCount });
   }
 
   @Get(':id')

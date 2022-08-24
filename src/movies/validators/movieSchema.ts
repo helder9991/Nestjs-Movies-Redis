@@ -5,6 +5,10 @@ const createMovieSchema = Yup.object().shape({
   description: Yup.string().required(),
 });
 
+const findAllMovieSchema = Yup.object().shape({
+  page: Yup.number().positive().required(),
+});
+
 const findOneMovieSchema = Yup.object().shape({
   id: Yup.string().uuid().required(),
 });
@@ -21,6 +25,7 @@ const removeMovieSchema = Yup.object().shape({
 
 export {
   createMovieSchema,
+  findAllMovieSchema,
   findOneMovieSchema,
   updateMovieSchema,
   removeMovieSchema,
