@@ -61,14 +61,14 @@ export class MoviesController {
     if (!isValid)
       return response.status(400).json({ message: 'Bad validation' });
 
-    const hasCache = await this.cacheManager.get(`${page}`);
+    const hasCache = await this.cacheManager.get(`movies:findAll:${page}`);
 
     if (hasCache) return response.status(200).json(hasCache);
 
     const { movies, pageNumber, totalPages, totaRowCount } =
       await this.moviesService.findAll(page);
 
-    await this.cacheManager.set(`${page}`, {
+    await this.cacheManager.set(`movies:findAll:${page}`, {
       movies,
       pageNumber,
       totalPages,
