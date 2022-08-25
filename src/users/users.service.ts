@@ -3,12 +3,11 @@ import { v4 } from 'uuid';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { hash, compare } from 'bcryptjs';
-import { sign } from 'jsonwebtoken';
 
 import { CreateUserDto } from './dto/create-user.dto';
 import { User } from './entities/user.entity';
 import { AuthUserDto } from './dto/auth-user.dto';
-import authConfig from '../config/auth';
+import { JwtService } from '@nestjs/jwt';
 
 interface IAuth {
   token: string;
@@ -19,6 +18,7 @@ export class UsersService {
   constructor(
     @InjectRepository(User)
     private usersRepository: Repository<User>,
+    private jwtService: JwtService,
   ) {}
 
   async create({ email, password }: CreateUserDto): Promise<User> {
@@ -47,11 +47,8 @@ export class UsersService {
     if (!passwordMatched)
       throw new HttpException('Login or password is invalid', 400);
 
-    const { secret, expiresIn } = authConfig.jwt;
-
-    const token = sign({}, secret, {
-      subject: user.id,
-      expiresIn,
+    const token = this.jwtService.sign({
+      sub: user.id,
     });
 
     return { token };
