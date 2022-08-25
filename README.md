@@ -7,6 +7,7 @@
   
   - O Projeto foi desenvolvido utilizando o TypeScript que busca melhorar a busca de erros e bugs dentro do código, além de melhorar a consistência e escabilidade do mesmo.
   -  O conceito do projeto é a criação de uma API simples de CRUD de um catálogo de filmes.
+  -  Ao rodar o projeto em uma maquina local é possivel acessar a documentação da API acessando http://localhost:3000/api#/
   
  
 # Ferramentas utilizadas + Tempo de experiência
