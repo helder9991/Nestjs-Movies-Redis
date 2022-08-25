@@ -177,6 +177,7 @@ export class MoviesController {
       return response.status(400).json({ message: 'Bad validation' });
 
     await this.moviesService.remove(id);
+    await this.cacheManager.reset();
 
     return response.status(204).send();
   }
