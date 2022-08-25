@@ -6,9 +6,15 @@ import { User } from './users/entities/user.entity';
 import { UsersModule } from './users/users.module';
 import { MoviesModule } from './movies/movies.module';
 import { Movie } from './movies/entities/movie.entity';
+import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
+import { APP_GUARD } from '@nestjs/core';
 
 @Module({
   imports: [
+    ThrottlerModule.forRoot({
+      ttl: 60,
+      limit: 10,
+    }),
     CacheModule.register<RedisClientOptions>({
       store: redisStore,
       url: `//${process.env.REDIS_HOST}:${process.env.REDIS_PORT}`,
@@ -30,6 +36,11 @@ import { Movie } from './movies/entities/movie.entity';
     MoviesModule,
   ],
   controllers: [],
-  providers: [],
+  providers: [
+    {
+      provide: APP_GUARD,
+      useClass: ThrottlerGuard,
+    },
+  ],
 })
 export class AppModule {}
