@@ -10,6 +10,7 @@ import {
   Inject,
   CACHE_MANAGER,
   Query,
+  UseGuards,
 } from '@nestjs/common';
 import { MoviesService } from './movies.service';
 import { CreateMovieDto } from './dto/create-movie.dto';
@@ -23,6 +24,7 @@ import {
   updateMovieSchema,
 } from './validators/movieSchema';
 import { Cache } from 'cache-manager';
+import { JwtAuthGuard } from 'src/users/auth/jwt-auth-guard';
 
 @Controller('movies')
 export class MoviesController {
@@ -31,6 +33,7 @@ export class MoviesController {
     @Inject(CACHE_MANAGER) private cacheManager: Cache,
   ) {}
 
+  @UseGuards(JwtAuthGuard)
   @Post()
   async create(
     @Body() { name, description }: CreateMovieDto,
@@ -48,6 +51,7 @@ export class MoviesController {
     return response.status(201).json(movie);
   }
 
+  @UseGuards(JwtAuthGuard)
   @Get()
   async findAll(@Query('page') page: number, @Res() response: Response) {
     page = page ? page : 1;
@@ -76,6 +80,7 @@ export class MoviesController {
       .json({ movies, pageNumber, totalPages, totaRowCount });
   }
 
+  @UseGuards(JwtAuthGuard)
   @Get(':id')
   async findOne(@Param('id') id: string, @Res() response: Response) {
     const isValid = await findOneMovieSchema.isValid({ id });
@@ -91,6 +96,7 @@ export class MoviesController {
     return response.status(200).json(movie);
   }
 
+  @UseGuards(JwtAuthGuard)
   @Patch(':id')
   async update(
     @Param('id') id: string,
@@ -112,6 +118,7 @@ export class MoviesController {
     return response.status(200).json(movie);
   }
 
+  @UseGuards(JwtAuthGuard)
   @Delete(':id')
   async remove(@Param('id') id: string, @Res() response: Response) {
     const isValid = await removeMovieSchema.isValid({ id });
