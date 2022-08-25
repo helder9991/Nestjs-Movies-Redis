@@ -3,11 +3,22 @@ import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { authUserSchema, createUserSchema } from './validators/userSchema';
 import { Response } from 'express';
+import { ApiResponse, ApiTags } from '@nestjs/swagger';
 
+@ApiTags('users')
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
+  @ApiResponse({
+    status: 204,
+    description: 'O usuário foi cadastrado com sucesso.',
+  })
+  @ApiResponse({
+    status: 400,
+    description:
+      '1 - O envio dos parametros está errado. 2 - O usuário já existe',
+  })
   @Post('/')
   async create(
     @Body() { email, password }: CreateUserDto,
@@ -28,6 +39,15 @@ export class UsersController {
     return response.status(201).send();
   }
 
+  @ApiResponse({
+    status: 204,
+    description: 'O login foi realizado com sucesso.',
+  })
+  @ApiResponse({
+    status: 400,
+    description:
+      '1 - O envio dos parametros está errado. 2 - Usuário ou senha inválidos',
+  })
   @Post('/auth')
   async authenticate(
     @Body() { email, password }: CreateUserDto,
